@@ -18,8 +18,7 @@ var (
 func main() {
 	flag.Parse()
 
-	//pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
-	pagesAccesses := []int{2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2}
+	pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
 
 	if *bruteForce {
 		bruteForceOptimal(*brutePercent, pagesAccesses)
