@@ -48,7 +48,10 @@ func NewBasicPageReplacerWrapper(replacer Replacer, framesCount, totalPages int,
 	}
 }
 
-func (b *BasicPageReplacerWrapper) Run() {
+func (b *BasicPageReplacerWrapper) Run(verbose bool) {
+	if verbose {
+		b.printHeading()
+	}
 	for i := 0; i < len(b.pagesAccesses); i++ {
 		pageToAccess := b.pagesAccesses[i]
 		b.AccessNotifier.Notify(pageToAccess, i)
@@ -62,8 +65,15 @@ func (b *BasicPageReplacerWrapper) Run() {
 			b.frames[pageIndex] = pageToAccess
 			b.pageFaults++
 		}
+		if !verbose {
+			continue
+		}
 		b.Print(pageToAccess, isFault && filled)
 	}
+}
+
+func (b *BasicPageReplacerWrapper) GetPageFaults() int {
+	return b.pageFaults
 }
 
 func getFreeFrame(frames []int) int {
@@ -84,11 +94,22 @@ func (b *BasicPageReplacerWrapper) isPageInFrames(page int) bool {
 	return false
 }
 
+func (b *BasicPageReplacerWrapper) printHeading() {
+	print(" P | ")
+	for i := 0; i < b.framesCount; i++ {
+		fmt.Printf("f%d ", i+1)
+	}
+	print(" | fault?")
+	println()
+	fmt.Println("---+-----------+---------")
+}
+
 func (b *BasicPageReplacerWrapper) Print(pageToAccess int, isFault bool) {
-	print(pageToAccess, " | ")
+	fmt.Printf("%2d | ", pageToAccess)
 	for i := 0; i < b.framesCount; i++ {
 		fmt.Printf("%2d ", b.frames[i])
 	}
+	print(" | ")
 	if isFault {
 		print("Page fault")
 	}
@@ -206,10 +227,19 @@ func selectReplacer(replacer string, framesCount int) (Replacer, AccessNotifier)
 func main() {
 	flag.Parse()
 
-	//pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
-	pagesAccesses := []int{2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2}
+	pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
+	//pagesAccesses := []int{2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2}
 
-	fifo, notifier := selectReplacer(*replacer, *framesCount)
-	wrapper := NewBasicPageReplacerWrapper(fifo, *framesCount, *totalPages, pagesAccesses, notifier)
-	wrapper.Run()
+	optimal, notifier := selectReplacer("opt", *framesCount)
+	optimalWrapper := NewBasicPageReplacerWrapper(optimal, *framesCount, *totalPages, pagesAccesses, notifier)
+	optimalWrapper.Run(false)
+	optimalFaults := optimalWrapper.GetPageFaults()
+
+	fmt.Printf("Using '%s' page replacement algorithm\n", *replacer)
+	replacer, notifier := selectReplacer(*replacer, *framesCount)
+	wrapper := NewBasicPageReplacerWrapper(replacer, *framesCount, *totalPages, pagesAccesses, notifier)
+	wrapper.Run(true)
+	faults := wrapper.GetPageFaults()
+
+	fmt.Printf("Total page faults / optimal page faults: %d/%d\n", faults, optimalFaults)
 }
