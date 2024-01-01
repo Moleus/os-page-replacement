@@ -54,7 +54,9 @@ func (b *BasicPageReplacerWrapper) Run(verbose bool) {
 				pageIndex = b.Replacer.ChoosePageIdxToReplace(i, b.pagesAccesses, b.frames)
 			}
 			b.frames[pageIndex] = pageToAccess
-			b.pageFaults++
+			if filled {
+				b.pageFaults++
+			}
 		}
 		if !verbose {
 			continue

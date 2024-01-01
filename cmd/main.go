@@ -8,20 +8,21 @@ import (
 )
 
 var (
-	framesCount = flag.Int("frames", 5, "Number of frames in main memory")
-	totalPages  = flag.Int("pages", 22, "Number of pages in virtual memory")
-	replacer    = flag.String("replacer", "fifo", "Replacer algorithm: fifo, lru, opt")
-	bruteForce  = flag.Bool("brute-force", false, "Brute force optimal frames count")
+	framesCount  = flag.Int("frames", 5, "Number of frames in main memory")
+	totalPages   = flag.Int("pages", 22, "Number of pages in virtual memory")
+	replacer     = flag.String("replacer", "fifo", "Replacer algorithm: fifo, lru, opt")
+	bruteForce   = flag.Bool("brute", false, "Brute force optimal frames count")
+	brutePercent = flag.Float64("brute-percent", 0.05, "Brute force optimal frames count: required page faults percentage")
 )
 
 func main() {
 	flag.Parse()
 
-	pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
-	//pagesAccesses := []int{2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2}
+	//pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
+	pagesAccesses := []int{2, 3, 2, 1, 5, 2, 4, 5, 3, 2, 5, 2}
 
 	if *bruteForce {
-		bruteForceOptimal(0.5, pagesAccesses)
+		bruteForceOptimal(*brutePercent, pagesAccesses)
 	} else {
 		normalRun(pagesAccesses)
 	}
@@ -57,15 +58,16 @@ func normalRun(pagesAccesses []int) {
 }
 
 func bruteForceOptimal(requiredFaultsPercentage float64, pagesAccesses []int) {
-	maxFrames := 1000
+	maxFrames := len(pagesAccesses)
 	for framesCount := 1; framesCount < maxFrames; framesCount++ {
 		optimal, notifier := selectReplacer("opt", framesCount)
 		optimalWrapper := pr.NewBasicPageReplacerWrapper(optimal, framesCount, *totalPages, pagesAccesses, notifier)
 		optimalWrapper.Run(false)
 		faultsCount := optimalWrapper.GetPageFaults()
-		faultsPercentage := float64(faultsCount / len(pagesAccesses))
-		if faultsPercentage > requiredFaultsPercentage {
-			fmt.Printf("Frames: %d. Page faults percentage: %f\n", framesCount, faultsPercentage)
+		faultsPercentage := float64(faultsCount) / float64(len(pagesAccesses))
+		fmt.Printf("Frames: %d. Page faults percentage: %f. (%d/%d)\n", framesCount, faultsPercentage, faultsCount, len(pagesAccesses))
+		if faultsPercentage < requiredFaultsPercentage {
+			return
 		}
 	}
 	panic(fmt.Sprintf("Can't find frames count with page faults percentage more than %f", requiredFaultsPercentage))
