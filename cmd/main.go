@@ -16,6 +16,7 @@ var (
 	bruteForce   = flag.Bool("brute", false, "Brute force optimal frames count")
 	brutePercent = flag.Float64("brute-percent", 0.05, "Brute force optimal frames count: required page faults percentage")
   pagesAccessesInput = flag.String("accesses", "7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2", "Comma separated list of pages accesses")
+  isEmptyPageFault = flag.Bool("empty-is-fault", false, "Non initialized pages (-1) as fault")
 )
 
 func main() {
@@ -58,16 +59,17 @@ func selectReplacer(replacer string, framesCount int) (pr.Replacer, pr.AccessNot
 func normalRun(pagesAccesses []int) {
 	optimal, notifier := selectReplacer("opt", *framesCount)
 	optimalWrapper := pr.NewBasicPageReplacerWrapper(optimal, *framesCount, *totalPages, pagesAccesses, notifier)
-	optimalWrapper.Run(false)
+  optimalWrapper.Run(false, *isEmptyPageFault)
 	optimalFaults := optimalWrapper.GetPageFaults()
 
 	fmt.Printf("Using '%s' page replacement algorithm\n", *replacer)
 	replacer, notifier := selectReplacer(*replacer, *framesCount)
 	wrapper := pr.NewBasicPageReplacerWrapper(replacer, *framesCount, *totalPages, pagesAccesses, notifier)
-	wrapper.Run(true)
+	wrapper.Run(true, *isEmptyPageFault)
 	faults := wrapper.GetPageFaults()
 
-	fmt.Printf("Total page faults / optimal page faults: %d/%d\n", faults, optimalFaults)
+  fmt.Printf("Total pages accesses: %d\n", len(pagesAccesses))
+	fmt.Printf("Total page faults %d. Page faults with optimal algo: %d\n", faults, optimalFaults)
 }
 
 func bruteForceOptimal(requiredFaultsPercentage float64, pagesAccesses []int) {
@@ -75,7 +77,7 @@ func bruteForceOptimal(requiredFaultsPercentage float64, pagesAccesses []int) {
 	for framesCount := 1; framesCount < maxFrames; framesCount++ {
 		optimal, notifier := selectReplacer("opt", framesCount)
 		optimalWrapper := pr.NewBasicPageReplacerWrapper(optimal, framesCount, *totalPages, pagesAccesses, notifier)
-		optimalWrapper.Run(false)
+		optimalWrapper.Run(false, *isEmptyPageFault)
 		faultsCount := optimalWrapper.GetPageFaults()
 		faultsPercentage := float64(faultsCount) / float64(len(pagesAccesses))
 		fmt.Printf("Frames: %d. Page faults percentage: %f. (%d/%d)\n", framesCount, faultsPercentage, faultsCount, len(pagesAccesses))

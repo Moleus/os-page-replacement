@@ -39,7 +39,7 @@ func NewBasicPageReplacerWrapper(replacer Replacer, framesCount, totalPages int,
 	}
 }
 
-func (b *BasicPageReplacerWrapper) Run(verbose bool) {
+func (b *BasicPageReplacerWrapper) Run(verbose bool, isEmptyPageFault bool) {
 	if verbose {
 		b.printHeading()
 	}
@@ -47,21 +47,22 @@ func (b *BasicPageReplacerWrapper) Run(verbose bool) {
 		pageToAccess := b.pagesAccesses[i]
 		b.AccessNotifier.Notify(pageToAccess, i)
 		isFault := !b.isPageInFrames(pageToAccess)
-		filled := !slices.Contains(b.frames, -1)
+		isEmpty := slices.Contains(b.frames, -1)
+    isShowFault := (!isEmpty || isEmptyPageFault) && isFault
 		if isFault {
 			pageIndex := getFreeFrame(b.frames)
 			if pageIndex == -1 {
 				pageIndex = b.Replacer.ChoosePageIdxToReplace(i, b.pagesAccesses, b.frames)
 			}
 			b.frames[pageIndex] = pageToAccess
-			if filled {
+			if isShowFault {
 				b.pageFaults++
 			}
 		}
 		if !verbose {
 			continue
 		}
-		b.Print(pageToAccess, isFault && filled)
+		b.Print(pageToAccess, isShowFault)
 	}
 }
 
