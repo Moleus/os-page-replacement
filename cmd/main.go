@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
+	"strings"
 
 	pr "github.com/Moleus/os-page-replacement/pkg/page-replacement"
 )
@@ -13,12 +15,24 @@ var (
 	replacer     = flag.String("replacer", "fifo", "Replacer algorithm: fifo, lru, opt")
 	bruteForce   = flag.Bool("brute", false, "Brute force optimal frames count")
 	brutePercent = flag.Float64("brute-percent", 0.05, "Brute force optimal frames count: required page faults percentage")
+  pagesAccessesInput = flag.String("accesses", "7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2", "Comma separated list of pages accesses")
 )
 
 func main() {
 	flag.Parse()
 
-	pagesAccesses := []int{2, 15, 20, 17, 21, 19, 14, 3, 9, 8, 15, 10, 20, 2, 16, 18, 14, 19, 18, 7, 12, 1, 13, 20, 11, 20, 14, 17, 13, 6, 13, 15, 11, 2, 10}
+  pagesAccesses := []int{}
+  for _, pageAccess := range strings.Split(*pagesAccessesInput, ",") {
+    numStr := strings.TrimSpace(pageAccess)
+    if numStr == "" {
+      continue
+    }
+    pageAccessInt, err := strconv.Atoi(numStr)
+    if err != nil {
+      panic(err)
+    }
+    pagesAccesses = append(pagesAccesses, pageAccessInt)
+  }
 
 	if *bruteForce {
 		bruteForceOptimal(*brutePercent, pagesAccesses)
