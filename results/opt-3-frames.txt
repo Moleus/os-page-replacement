@@ -1,0 +1,43 @@
+Using 'opt' page replacement algorithm
+ P | f1 f2 f3  | fault?
+---+-----------+---------
+ 7 |  7 -1 -1  | 
+ 6 |  7  6 -1  | 
+ 4 |  7  6  4  | 
+12 |  7  6 12  | Page fault
+20 |  7  6 20  | Page fault
+ 3 |  7  6  3  | Page fault
+ 8 |  7  6  8  | Page fault
+11 | 11  6  8  | Page fault
+13 | 13  6  8  | Page fault
+ 6 | 13  6  8  | 
+ 1 |  1  6  8  | Page fault
+ 8 |  1  6  8  | 
+24 | 24  6  8  | Page fault
+11 | 11  6  8  | Page fault
+ 6 | 11  6  8  | 
+10 | 11 10  8  | Page fault
+14 | 11 14  8  | Page fault
+ 7 | 11  7  8  | Page fault
+13 | 11 13  8  | Page fault
+ 8 | 11 13  8  | 
+23 | 11 23  8  | Page fault
+ 8 | 11 23  8  | 
+22 | 11 23 22  | Page fault
+21 | 11 21 22  | Page fault
+11 | 11 21 22  | 
+18 | 18 21 22  | Page fault
+22 | 18 21 22  | 
+23 | 23 21 22  | Page fault
+22 | 23 21 22  | 
+12 | 12 21 22  | Page fault
+21 | 12 21 22  | 
+ 6 |  6 21 22  | Page fault
+17 | 17 21 22  | Page fault
+18 | 17 21 18  | Page fault
+20 | 17 20 18  | Page fault
+19 | 17 19 18  | Page fault
+ 9 | 17 19  9  | Page fault
+Statistics:
+faults/non-faults/total accesses: 25/12/37
+Total page faults 25. Page faults with optimal algo: 25

@@ -68,7 +68,8 @@ func normalRun(pagesAccesses []int) {
 	wrapper.Run(true, *isEmptyPageFault)
 	faults := wrapper.GetPageFaults()
 
-  fmt.Printf("Total pages accesses: %d\n", len(pagesAccesses))
+  fmt.Println("Statistics:")
+  fmt.Printf("faults/non-faults/total accesses: %d/%d/%d\n", faults, len(pagesAccesses) - faults, len(pagesAccesses))
 	fmt.Printf("Total page faults %d. Page faults with optimal algo: %d\n", faults, optimalFaults)
 }
 
