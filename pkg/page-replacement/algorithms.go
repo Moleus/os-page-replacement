@@ -89,12 +89,12 @@ func (b *BasicPageReplacerWrapper) isPageInFrames(page int) bool {
 }
 
 func (b *BasicPageReplacerWrapper) printHeading() {
-	print(" P | ")
+	fmt.Print(" P | ")
 	for i := 0; i < b.framesCount; i++ {
 		fmt.Printf("f%d ", i+1)
 	}
-	print(" | fault?")
-	println()
+	fmt.Print(" | fault?")
+	fmt.Println()
 	fmt.Println("---+-----------+---------")
 }
 
@@ -103,11 +103,11 @@ func (b *BasicPageReplacerWrapper) Print(pageToAccess int, isFault bool) {
 	for i := 0; i < b.framesCount; i++ {
 		fmt.Printf("%2d ", b.frames[i])
 	}
-	print(" | ")
+	fmt.Print(" | ")
 	if isFault {
-		print("Page fault")
+		fmt.Print("Page fault")
 	}
-	println()
+	fmt.Println()
 }
 
 type FIFO struct {
