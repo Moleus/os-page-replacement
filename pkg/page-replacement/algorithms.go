@@ -201,5 +201,5 @@ func (o *OPT) distanceToNextReference(page, currentIndex int, pagesAccesses []in
 			return i - currentIndex
 		}
 	}
-	return o.totalPages
+	return len(pagesAccesses)
 }
