@@ -10,30 +10,30 @@ import (
 )
 
 var (
-	framesCount  = flag.Int("frames", 5, "Number of frames in main memory")
-	totalPages   = flag.Int("pages", 22, "Number of pages in virtual memory")
-	replacer     = flag.String("replacer", "fifo", "Replacer algorithm: fifo, lru, opt")
-	bruteForce   = flag.Bool("brute", false, "Brute force optimal frames count")
-	brutePercent = flag.Float64("brute-percent", 0.05, "Brute force optimal frames count: required page faults percentage")
-  pagesAccessesInput = flag.String("accesses", "7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2", "Comma separated list of pages accesses")
-  isEmptyPageFault = flag.Bool("empty-is-fault", false, "Non initialized pages (-1) as fault")
+	framesCount        = flag.Int("frames", 5, "Number of frames in main memory")
+	totalPages         = flag.Int("pages", 22, "Number of pages in virtual memory")
+	replacer           = flag.String("replacer", "fifo", "Replacer algorithm: fifo, lru, opt")
+	bruteForce         = flag.Bool("brute", false, "Brute force optimal frames count")
+	brutePercent       = flag.Float64("brute-percent", 0.05, "Brute force optimal frames count: required page faults percentage")
+	pagesAccessesInput = flag.String("accesses", "7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2", "Comma separated list of pages accesses")
+	isEmptyPageFault   = flag.Bool("empty-is-fault", false, "Non initialized pages (-1) as fault")
 )
 
 func main() {
 	flag.Parse()
 
-  pagesAccesses := []int{}
-  for _, pageAccess := range strings.Split(*pagesAccessesInput, ",") {
-    numStr := strings.TrimSpace(pageAccess)
-    if numStr == "" {
-      continue
-    }
-    pageAccessInt, err := strconv.Atoi(numStr)
-    if err != nil {
-      panic(err)
-    }
-    pagesAccesses = append(pagesAccesses, pageAccessInt)
-  }
+	pagesAccesses := []int{}
+	for _, pageAccess := range strings.Split(*pagesAccessesInput, ",") {
+		numStr := strings.TrimSpace(pageAccess)
+		if numStr == "" {
+			continue
+		}
+		pageAccessInt, err := strconv.Atoi(numStr)
+		if err != nil {
+			panic(err)
+		}
+		pagesAccesses = append(pagesAccesses, pageAccessInt)
+	}
 
 	if *bruteForce {
 		bruteForceOptimal(*brutePercent, pagesAccesses)
@@ -59,7 +59,7 @@ func selectReplacer(replacer string, framesCount int) (pr.Replacer, pr.AccessNot
 func normalRun(pagesAccesses []int) {
 	optimal, notifier := selectReplacer("opt", *framesCount)
 	optimalWrapper := pr.NewBasicPageReplacerWrapper(optimal, *framesCount, *totalPages, pagesAccesses, notifier)
-  optimalWrapper.Run(false, *isEmptyPageFault)
+	optimalWrapper.Run(false, *isEmptyPageFault)
 	optimalFaults := optimalWrapper.GetPageFaults()
 
 	fmt.Printf("Using '%s' page replacement algorithm\n", *replacer)
@@ -68,8 +68,8 @@ func normalRun(pagesAccesses []int) {
 	wrapper.Run(true, *isEmptyPageFault)
 	faults := wrapper.GetPageFaults()
 
-  fmt.Println("Statistics:")
-  fmt.Printf("faults/non-faults/total accesses: %d/%d/%d\n", faults, len(pagesAccesses) - faults, len(pagesAccesses))
+	fmt.Println("Statistics:")
+	fmt.Printf("faults/non-faults/total accesses: %d/%d/%d\n", faults, len(pagesAccesses)-faults, len(pagesAccesses))
 	fmt.Printf("Total page faults %d. Page faults with optimal algo: %d\n", faults, optimalFaults)
 }
 

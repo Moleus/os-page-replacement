@@ -48,7 +48,7 @@ func (b *BasicPageReplacerWrapper) Run(verbose bool, isEmptyPageFault bool) {
 		b.AccessNotifier.Notify(pageToAccess, i)
 		isFault := !b.isPageInFrames(pageToAccess)
 		isEmpty := slices.Contains(b.frames, -1)
-    isShowFault := (!isEmpty || isEmptyPageFault) && isFault
+		isShowFault := (!isEmpty || isEmptyPageFault) && isFault
 		if isFault {
 			pageIndex := getFreeFrame(b.frames)
 			if pageIndex == -1 {
